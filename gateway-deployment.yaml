@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud-gateway-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloud-gateway
+  template:
+    metadata:
+      labels:
+        app: cloud-gateway
+    spec:
+      containers:
+        - name: cloud-gateway
+          image: parasmani300/cloud-gateway:1.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8084
+          env:
+            - name: EUREKA_SERVER
+              value: http://service-discovery-service.default.svc.cluster.local:8761/eureka
+            - name: GOOGLE_CLIENT_ID
+              value: CLIENT_ID
+            - name: GOOGlE_CLIENT_SECRET
+              value: CLIENT_SECRET
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloud-gateway
+spec:
+  selector:
+    app: cloud-gateway
+  ports:
+    - protocol: TCP
+      port: 8084
+      targetPort: 8084
+  type: LoadBalancer
